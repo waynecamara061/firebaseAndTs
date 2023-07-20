@@ -1,28 +1,48 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { db } from './firebase';
 import {
   collection,
   addDoc,
-  getDocs
+  deleteDoc,
+  getDocs,
+  updateDoc,
+  doc,
+  onSnapshot,
 } from 'firebase/firestore';
-import { toast } from "react-toastify";
 import './App.css'
+import { handleSuccess, handleWarn } from './components/Utils/Utils';
 
 function App() {
 
   const [autor, setAutor] = useState('');
   const [titulo, setTitulo] = useState('');
+  const [postId, setPostId] = useState('');
   const [posts, setPosts] = useState([])
 
-  function handleWarn() {
-    toast.warn('Os campos devem ser preenchidos', { autoClose: 3000 });
-  }
-  function handleSuccess() {
-    toast.success('Informações cadastradas', { autoClose: 3000 });
-  }
+  useEffect(() => {
+    async function handleListPosts() {
+      const unsub = onSnapshot(collection(db, "posts"), (snapshot) => {
+        //@ts-ignore
+        const listPost = []
+
+        snapshot.forEach((doc: any) => {
+          // colocando os elemntos no array. ex: id, titulo e autor
+          listPost.push({
+            id: doc.id,
+            titulo: doc.data().titulo,
+            autor: doc.data().autor,
+          });
+        });
+        //@ts-ignore
+        setPosts(listPost);
+      })
+    }
+    handleListPosts()
+  }, [])
+
 
   async function handleAddDocument() {
-    if (autor.length > 0 && titulo.length > 0) {
+    if (autor.length > 0 && titulo.length > 0 && postId === '') {
 
       return await addDoc(collection(db, "posts"), {
         titulo: titulo,
@@ -31,17 +51,37 @@ function App() {
 
         .then(() => {
           handleSuccess()
+          handlesSearchPosts()
           setAutor('')
           setTitulo('')
         })
 
         .catch((erro: any) => {
-          console.log("Erro ao cadastrar" + erro)
+          console.log("Erro ao cadastrar: " + erro)
         })
     } else {
       handleWarn();
     }
   }
+
+
+  async function handlesSearchIdPosts() {
+    const idPostsRef = doc(db, 'posts', postId);
+    await updateDoc(idPostsRef, {
+      titulo: titulo,
+      autor: autor,
+    })
+
+      .then(() => {
+        setAutor('')
+        setTitulo('')
+        setPostId('')
+      })
+      .catch((erro) => {
+        console.log("erro ao atualizar informações: " + erro)
+      })
+  }
+
 
   async function handlesSearchPosts() {
     const postsRef = collection(db, 'posts');
@@ -64,8 +104,23 @@ function App() {
 
       })
       .catch((erro) => {
-        console.log("erro ao buscar informações" + erro)
+        console.log("erro ao buscar informações: " + erro)
       })
+  }
+
+  async function handleDeletePost(id: any) {
+    const deleteRef = doc(db, "posts", id);
+    await deleteDoc(deleteRef)
+
+      .then(() => {
+        handleSuccess()
+        handlesSearchPosts()
+      })
+
+      .catch((erro: any) => {
+        console.log("Erro ao axcluir: " + erro)
+      })
+
   }
 
   return (
@@ -73,6 +128,16 @@ function App() {
       <div className="app-container">
         <h1>React + Fire base</h1>
         <div className="app-content">
+          <div className="field-content">
+            <label>
+              ID:
+            </label>
+            <textarea
+              placeholder='Digite o id'
+              value={postId}
+              onChange={(e) => setPostId(e.target.value)}
+            />
+          </ div>
           <div className="field-content">
             <label>
               Titulo:
@@ -101,6 +166,9 @@ function App() {
             <button onClick={() => handlesSearchPosts()}>
               Buscar posts
             </button>
+            <button onClick={() => handlesSearchIdPosts()}>
+              Atualizar informações
+            </button>
           </div>
 
           <div className="list-container">
@@ -108,10 +176,14 @@ function App() {
               {posts.map((post: any) => {
                 return (
                   <div className="list-content">
-                  <li key={post.id}>
-                    <span>Title: {post.titulo}</span> <br />
-                    <span>Autor: {post.autor} </span> <br />
-                  </li>
+                    <li key={post.id}>
+                      <span>Id: {post.id}</span> <br />
+                      <span>Title: {post.titulo}</span> <br />
+                      <span>Autor: {post.autor} </span> <br />
+                      <button onClick={() => handleDeletePost(post.id)}>
+                        Excluir
+                      </button>
+                    </li>
                   </div>
                 )
               })}
