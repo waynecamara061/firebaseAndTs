@@ -1,1 +1,1 @@
-# firebaseAndTs
+# Este projeto tem como objetivo permitir que você aprenda a usar uma variedade de ferramentas do Firebase e a aprimorar seus conhecimentos em bibliotecas front-end utilizando o TypeScript. O Firebase é uma plataforma poderosa fornecida pelo Google que oferece uma série de serviços úteis para o desenvolvimento de aplicativos, incluindo autenticação de usuários, banco de dados em tempo real, hospedagem de sites e muito mais.
