@@ -9,13 +9,13 @@
   align-items: center;
 }
 
-.login-container h1,
+/* .login-container h1,
 h2 {
   color: white;
   font-family: 'Outfit';
   font-size: 28px;
   font-weight: 600;
-}
+} */
 
 .login-container label {
   color: white;
