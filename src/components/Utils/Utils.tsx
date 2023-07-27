@@ -10,3 +10,7 @@ export const handleWarnLogin = () => {
 export const handleSuccess = () => {
     toast.success('Informações cadastradas', { autoClose: 3000 });
 };
+
+export const handleSuccessDelete = () => {
+    toast.success('Tarefa concluida!', { autoClose: 3000 });
+};

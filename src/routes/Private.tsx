@@ -24,7 +24,6 @@ export default function Private({ children }: any) {
                     setSigned(true)
 
                 } else {
-                    console.log('OOOOOOOOOOOOOOOOOOOO CARALHO')
                     setLoading(false)
                     setSigned(false)
                 }
